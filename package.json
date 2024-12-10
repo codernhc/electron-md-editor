@@ -80,7 +80,9 @@
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.16.0",
     "sass": "^1.82.0",
-    "sass-loader": "^16.0.4"
+    "sass-loader": "^16.0.4",
+    "tdesign-icons-react": "^0.4.2",
+    "tdesign-react": "^1.10.1"
   },
   "devDependencies": {
     "@electron/rebuild": "^3.3.0",

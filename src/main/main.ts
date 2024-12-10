@@ -9,7 +9,7 @@
  * `./src/main.js` using webpack. This gives us some performance wins.
  */
 import path from 'path';
-import { app, BrowserWindow, shell, ipcMain } from 'electron';
+import { app, BrowserWindow, shell, ipcMain, dialog } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './menu';
@@ -29,6 +29,54 @@ ipcMain.on('ipc-example', async (event, arg) => {
   const msgTemplate = (pingPong: string) => `IPC test: ${pingPong}`;
   console.log(msgTemplate(arg));
   event.reply('ipc-example', msgTemplate('pong'));
+});
+
+ipcMain.on('ipc-openFolder', async (event) => {
+  dialog
+    .showOpenDialog({
+      properties: ['openDirectory'],
+    })
+    .then((result) => {
+      if (!result.canceled && result.filePaths.length > 0) {
+        const fs = require('fs');
+
+        const fileTree: any = {
+          filePath: result.filePaths[0],
+          name: path.basename(result.filePaths[0]),
+          children: [],
+        };
+
+        const readDir = (dir: string, parentChildren: any[]) => {
+          const files = fs.readdirSync(dir);
+          files.forEach((file: string) => {
+            const filePath = path.join(dir, file);
+            const stat = fs.statSync(filePath);
+
+            if (stat.isDirectory()) {
+              const newDir = {
+                filePath: filePath,
+                name: file,
+                children: [],
+              };
+              parentChildren.push(newDir);
+              readDir(filePath, newDir.children);
+            } else {
+              parentChildren.push({
+                filePath: filePath,
+                name: file,
+                children: [],
+              });
+            }
+          });
+        };
+
+        readDir(result.filePaths[0], fileTree.children);
+        event.reply('ipc-openFolder', fileTree);
+      }
+    })
+    .catch((err) => {
+      console.error('Error opening directory', err);
+    });
 });
 
 if (process.env.NODE_ENV === 'production') {
@@ -71,8 +119,8 @@ const createWindow = async () => {
 
   mainWindow = new BrowserWindow({
     show: false,
-    width: 1024,
-    height: 728,
+    width: 1600,
+    height: 1024,
     icon: getAssetPath('icon.png'),
     webPreferences: {
       preload: app.isPackaged
