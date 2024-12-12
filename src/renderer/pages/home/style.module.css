@@ -1,0 +1,9 @@
+.border {
+  width: 1px;
+  height: 100%;
+  background: blue
+}
+
+.border:hover {
+  width: 5px;
+}

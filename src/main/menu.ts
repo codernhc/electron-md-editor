@@ -4,7 +4,10 @@ import {
   shell,
   BrowserWindow,
   MenuItemConstructorOptions,
+  dialog,
+  ipcMain,
 } from 'electron';
+import { openFile, openFolder } from './menu-util';
 
 interface DarwinMenuItemConstructorOptions extends MenuItemConstructorOptions {
   selector?: string;
@@ -54,10 +57,10 @@ export default class MenuBuilder {
 
   buildDarwinTemplate(): MenuItemConstructorOptions[] {
     const subMenuAbout: DarwinMenuItemConstructorOptions = {
-      label: 'Electron',
+      label: 'Md-Editor',
       submenu: [
         {
-          label: 'About ElectronReact',
+          label: 'About Md-Editor',
           selector: 'orderFrontStandardAboutPanel:',
         },
         { type: 'separator' },
@@ -81,6 +84,31 @@ export default class MenuBuilder {
           click: () => {
             app.quit();
           },
+        },
+      ],
+    };
+    const subMenuFile: DarwinMenuItemConstructorOptions = {
+      label: 'File',
+      submenu: [
+        { label: 'New File', accelerator: 'Command+N', selector: 'undo:' },
+        {
+          label: 'New Windows',
+          accelerator: 'Command+Shift+N',
+          selector: 'undo:',
+        },
+        { type: 'separator' },
+        {
+          label: 'Open...',
+          accelerator: 'Command+O',
+          click: () => openFile(this.mainWindow),
+        },
+        { label: 'Open Folder...', click: () => openFolder(this.mainWindow) },
+        { type: 'separator' },
+        { label: 'Save', accelerator: 'Command+S', selector: 'save:' },
+        { label: 'Save As', accelerator: 'Command+Shift+S', selector: 'cut:' },
+        {
+          label: 'Select All',
+          selector: 'selectAll:',
         },
       ],
     };
@@ -189,7 +217,14 @@ export default class MenuBuilder {
         ? subMenuViewDev
         : subMenuViewProd;
 
-    return [subMenuAbout, subMenuEdit, subMenuView, subMenuWindow, subMenuHelp];
+    return [
+      subMenuAbout,
+      subMenuFile,
+      subMenuEdit,
+      subMenuView,
+      subMenuWindow,
+      subMenuHelp,
+    ];
   }
 
   buildDefaultTemplate() {

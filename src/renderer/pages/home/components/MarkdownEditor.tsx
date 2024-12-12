@@ -10,7 +10,13 @@ const MarkdownEditor: React.FC = () => {
 
   React.useEffect(() => {
     if (editor == null) {
-      // 初始化编辑器
+      // Cherry.usePlugin(CherryMermaidPlugin, {
+      //   mermaid, // 传入mermaid引用
+      //   // mermaidAPI: mermaid.mermaidAPI, // 也可以传入mermaid API
+      //   // 同时可以在这里配置mermaid的行为，可参考mermaid官方文档
+      //   theme: 'dark',
+      //   // sequence: { useMaxWidth: false, showSequenceNumbers: true }
+      // });
       const config: CherryOptions = {
         el: editorRef.current!,
         value: '',
@@ -19,6 +25,40 @@ const MarkdownEditor: React.FC = () => {
         },
         callback: {
           afterChange: (md, html) => console.log('change'),
+        },
+        themeSettings: {
+          // 主题列表，用于切换主题
+          themeList: [
+            { className: 'default', label: '默认' },
+            { className: 'dark', label: '黑' },
+            { className: 'light', label: '白' },
+            { className: 'green', label: '绿' },
+            { className: 'red', label: '粉' },
+            { className: 'violet', label: '紫' },
+            { className: 'blue', label: '蓝' },
+          ],
+          // 目前应用的主题
+          mainTheme: 'light',
+          // 目前应用的代码块主题
+          codeBlockTheme: 'default',
+          inlineCodeTheme: 'red',
+          toolbarTheme: 'light',
+        },
+
+        toolbars: {
+          // 配置切换主题的按钮到顶部工具栏里
+          toolbar: [
+            'bold',
+            'italic',
+            'size',
+            '|',
+            'color',
+            'header',
+            '|',
+            'theme',
+          ],
+          // 配置切换主题的按钮到侧边栏里
+          sidebar: ['mobilePreview', 'copy', 'theme'],
         },
       };
 

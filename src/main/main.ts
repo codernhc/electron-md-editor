@@ -31,54 +31,6 @@ ipcMain.on('ipc-example', async (event, arg) => {
   event.reply('ipc-example', msgTemplate('pong'));
 });
 
-ipcMain.on('ipc-openFolder', async (event) => {
-  dialog
-    .showOpenDialog({
-      properties: ['openDirectory'],
-    })
-    .then((result) => {
-      if (!result.canceled && result.filePaths.length > 0) {
-        const fs = require('fs');
-
-        const fileTree: any = {
-          filePath: result.filePaths[0],
-          name: path.basename(result.filePaths[0]),
-          children: [],
-        };
-
-        const readDir = (dir: string, parentChildren: any[]) => {
-          const files = fs.readdirSync(dir);
-          files.forEach((file: string) => {
-            const filePath = path.join(dir, file);
-            const stat = fs.statSync(filePath);
-
-            if (stat.isDirectory()) {
-              const newDir = {
-                filePath: filePath,
-                name: file,
-                children: [],
-              };
-              parentChildren.push(newDir);
-              readDir(filePath, newDir.children);
-            } else {
-              parentChildren.push({
-                filePath: filePath,
-                name: file,
-                children: [],
-              });
-            }
-          });
-        };
-
-        readDir(result.filePaths[0], fileTree.children);
-        event.reply('ipc-openFolder', fileTree);
-      }
-    })
-    .catch((err) => {
-      console.error('Error opening directory', err);
-    });
-});
-
 if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support');
   sourceMapSupport.install();
