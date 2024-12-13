@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Cherry from 'cherry-markdown';
 import { CherryOptions } from 'cherry-markdown/types/cherry';
 
@@ -8,7 +8,7 @@ const MarkdownEditor: React.FC = () => {
   const editorRef = React.useRef(null);
   const [editor, setEditor] = React.useState<Cherry | null>(null);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (editor == null) {
       // Cherry.usePlugin(CherryMermaidPlugin, {
       //   mermaid, // 传入mermaid引用
@@ -65,6 +65,17 @@ const MarkdownEditor: React.FC = () => {
       setEditor(new Cherry(config));
     }
   }, []);
+
+  useEffect(() => {
+    window.electron.ipcRenderer.on('ipc-onOpenFile', (arg) => {
+      console.log(arg);
+      editor?.setMarkdown(arg as string);
+    });
+
+    return () => {
+      window.electron.ipcRenderer.removeAllListeners('ipc-onOpenFile');
+    };
+  }, [editor]);
 
   return (
     <div style={{ height: '100%' }}>

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import MarkdownEditor from './components/MarkdownEditor';
-import { Layout, Tree } from 'tdesign-react';
+import { Button, Layout, Tree } from 'tdesign-react';
 import { TreeNodeModel } from 'tdesign-react/es/tree/type';
 import { PhFileThin, PhFolderNotchThin } from '../../components/Icon';
 import styles from './style.module.css';
@@ -17,16 +17,6 @@ const HomePage: React.FC = () => {
   const [fileTree, setFileTree] = useState<FileNode[]>([]);
 
   useEffect(() => {
-    window.electron.ipcRenderer.on('ipc-onOpenFile', (arg) => {
-      console.log(arg);
-    });
-
-    return () => {
-      window.electron.ipcRenderer.removeAllListeners('ipc-onOpenFile');
-    };
-  }, [fileTree]);
-
-  useEffect(() => {
     window.electron.ipcRenderer.on('ipc-openFolder', (arg) => {
       console.log(arg);
 
@@ -38,6 +28,13 @@ const HomePage: React.FC = () => {
     if (node.data.children.length) return <PhFolderNotchThin fontSize={22} />;
 
     return <PhFileThin fontSize={22} />;
+  };
+
+  const openFolder = () => {
+    window.electron.ipcRenderer.once('ipc-openFolder', (arg) => {
+      setFileTree((val) => [...val, arg as FileNode]);
+    });
+    window.electron.ipcRenderer.sendMessage('ipc-openFolder', ['ping']);
   };
 
   return (
@@ -61,6 +58,17 @@ const HomePage: React.FC = () => {
                 value: 'filePath',
                 label: 'name',
               }}
+              empty={
+                <div className={styles.aside}>
+                  <Button
+                    variant="outline"
+                    theme="default"
+                    onClick={openFolder}
+                  >
+                    Open Folder
+                  </Button>
+                </div>
+              }
             />
             <div className={styles.border}></div>
           </div>

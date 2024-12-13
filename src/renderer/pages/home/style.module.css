@@ -7,3 +7,9 @@
 .border:hover {
   width: 5px;
 }
+
+.aside {
+  /* width: 50%; */
+  display: flex;
+  justify-content: center;
+}

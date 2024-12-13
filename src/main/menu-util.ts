@@ -5,10 +5,15 @@ export const openFile = (mainWindow: BrowserWindow) => {
   dialog
     .showOpenDialog({
       properties: ['openFile'],
+      filters: [{ name: 'Text Files', extensions: ['md'] }],
     })
     .then((result) => {
       if (!result.canceled) {
-        mainWindow.webContents.send('ipc-onOpenFile', result.filePaths[0]);
+        // 读取文件内容
+        const fs = require('fs');
+        const fileContent = fs.readFileSync(result.filePaths[0], 'utf8');
+        mainWindow.webContents.send('ipc-onOpenFile', fileContent);
+        // mainWindow.webContents.send('ipc-onOpenFile', result.filePaths[0]);
       }
     })
     .catch((err) => {
